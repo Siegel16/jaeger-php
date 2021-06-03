@@ -37,6 +37,11 @@ class ExampleController extends Controller
     public function store(Request $request)
     {
         $data = $request->only(['name', 'description', 'price']);
+        foreach ($data as $key => $value) {
+            if(empty($data[$key])) {
+                $data[$key] = null;
+            }
+        }
         Product::create($data);
         return redirect()->route('product.index');
     }
