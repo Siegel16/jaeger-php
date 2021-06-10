@@ -73,7 +73,6 @@ $app->configure('app');
 */
 
 $app->middleware([
-    App\Http\Middleware\GlobalTracerMiddleware::class
 ]);
 /*
 |--------------------------------------------------------------------------

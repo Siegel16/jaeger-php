@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
-use OpenTracing\Formats;
+use Jaeger\Config;
+use OpenTracing\GlobalTracer;
+use const Jaeger\SAMPLER_TYPE_CONST;
+use OpenTracing\Tags;
 
 class ExampleController extends Controller
 {
@@ -17,10 +20,9 @@ class ExampleController extends Controller
 
     public function __construct()
     {
-        $this->tracer = app('tracer');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $products = Product::paginate(10)->withQueryString();
         $data = [
@@ -66,5 +68,24 @@ class ExampleController extends Controller
     {
         Product::findOrFail($id)->delete();
         return redirect()->route('product.index');
+    }
+
+    public function initTracer()
+    {
+        try {
+            $config = new Config(
+                [
+                    'sampler' => [
+                        'type' => SAMPLER_TYPE_CONST,
+                        'param' => true,
+                    ],
+                    'logging' => true
+                ]
+            );
+
+            $config->initializeTracer();
+        } catch (\Exception $e) {
+            Log::info('Failed', ['msg:' => $e->getMessage()]);
+        }
     }
 }
